@@ -50,15 +50,33 @@ void rgba_to_greyscale(const uchar4* const rgbaImage,
   //First create a mapping from the 2D block and grid locations
   //to an absolute 2D location in the image, then use that to
   //calculate a 1D offset
+
+  const size_t tid = threadIdx.x + blockDim.x * threadIdx.y;
+
+  const char R = rgbaImage[tid].x;
+  const char G = rgbaImage[tid].y;
+  const char B = rgbaImage[tid].z;
+
+  greyImage[tid] = .299f * (int)R + .587f * (int)G + .114f * (int)B;
+ 
 }
 
 void your_rgba_to_greyscale(const uchar4 * const h_rgbaImage, uchar4 * const d_rgbaImage,
                             unsigned char* const d_greyImage, size_t numRows, size_t numCols)
 {
-  //You must fill in the correct sizes for the blockSize and gridSize
-  //currently only one block with one thread is being launched
-  const dim3 blockSize(1, 1, 1);  //TODO
-  const dim3 gridSize( 1, 1, 1);  //TODO
+  /** 
+   * Notes about dimensions: 
+   * 
+   * Going to use 1 block that is the dimension of the image in 2D. ie. Different thread per pixel.
+   * 
+   * Block does not require depth/dimension corresponding to image channels per pixel, since the 
+   * algorithm to convert a pixel to greyscale uses all three/four channels per pixels and is not dependent on the depth
+   * per pixel. ie. No iteration index required along channels of each pixel.
+   * 
+   * A single grid with the single block is sufficient.
+   */
+  const dim3 blockSize(numRows, numCols, 1); // ie. Threads per block
+  const dim3 gridSize(1, 1, 1); // ie. Blocks per grid
   rgba_to_greyscale<<<gridSize, blockSize>>>(d_rgbaImage, d_greyImage, numRows, numCols);
   
   cudaDeviceSynchronize(); checkCudaErrors(cudaGetLastError());

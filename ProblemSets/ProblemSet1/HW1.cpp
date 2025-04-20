@@ -34,6 +34,7 @@ void preProcess(uchar4 **inputImage, unsigned char **greyImage,
   }
 
   cv::cvtColor(image, imageRGBA, CV_BGR2RGBA);
+  std::cout << "imageRGBA dims: " << numRows() << ", " << numCols() << std::endl;
 
   //allocate memory for the output
   imageGrey.create(image.rows, image.cols, CV_8UC1);
