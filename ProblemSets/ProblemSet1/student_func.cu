@@ -51,9 +51,10 @@ void rgba_to_greyscale(const uchar4* const rgbaImage,
   //to an absolute 2D location in the image, then use that to
   //calculate a 1D offset
 
-  const size_t tid = threadIdx.x + blockDim.x * threadIdx.y;
+  // const size_t tid = threadIdx.x + blockDim.x * threadIdx.y;
 
-  // TODO: Fix tid after reshaping the block and grid
+  const size_t tid = blockIdx.x * (blockDim.x * blockDim.y) + threadIdx.y * (blockDim.x)  + threadIdx.x;
+
   // TODO: Add return condition for the last block which will only be partially used
 
   const char R = rgbaImage[tid].x;
@@ -98,7 +99,7 @@ void your_rgba_to_greyscale(const uchar4 * const h_rgbaImage, uchar4 * const d_r
    * We have 313 * 557 = 174,341 pixels to process
    * So, if a block can process 1024 pixels, we need at least 174,341 / 1024 = 170.25 = 171 blocks
    * So, let a grid of blocks of 171 be created. Can further reduce this to a square of blocks if necessary, 
-   * but it falls under the max size of each dimension of a grid so will proceed as a single dimension grid.
+   * but 171 falls under the max size of each dimension of a grid so will proceed as a single dimension grid.
    * 
    * NOTE: Not all threads in the last block will be necessary, so a conditional check will be necessary to 
    * return if total thread index becomes > total number of pixels.
