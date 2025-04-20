@@ -53,6 +53,9 @@ void rgba_to_greyscale(const uchar4* const rgbaImage,
 
   const size_t tid = threadIdx.x + blockDim.x * threadIdx.y;
 
+  // TODO: Fix tid after reshaping the block and grid
+  // TODO: Add return condition for the last block which will only be partially used
+
   const char R = rgbaImage[tid].x;
   const char G = rgbaImage[tid].y;
   const char B = rgbaImage[tid].z;
@@ -75,8 +78,33 @@ void your_rgba_to_greyscale(const uchar4 * const h_rgbaImage, uchar4 * const d_r
    * 
    * A single grid with the single block is sufficient.
    */
-  const dim3 blockSize(numRows, numCols, 1); // ie. Threads per block
-  const dim3 gridSize(1, 1, 1); // ie. Blocks per grid
+  // const dim3 blockSize(numRows, numCols, 1); // ie. Threads per block
+  // const dim3 gridSize(1, 1, 1); // ie. Blocks per grid
+  // rgba_to_greyscale<<<gridSize, blockSize>>>(d_rgbaImage, d_greyImage, numRows, numCols);
+
+
+  // TODO: Is there a way to get this max value at run time than hardcoding it so that all dims of
+  // block and grid can be set w.r.t that max value to avoid breaching max limits?
+  // const size_t block_max_dim = 1024;
+
+
+  /** 
+   * Follow up notes about dimensions: 
+   * Run "/usr/local/cuda/extras/demo_suite/deviceQuery" on command line to get device hardware configs
+   * 
+   * Max threads per block is 1024. This means multiple blocks are necessary. 
+   * Also, max size per block in each dimension is (1024, 1024, 64)
+   * 
+   * We have 313 * 557 = 174,341 pixels to process
+   * So, if a block can process 1024 pixels, we need at least 174,341 / 1024 = 170.25 = 171 blocks
+   * So, let a grid of blocks of 171 be created. Can further reduce this to a square of blocks if necessary, 
+   * but it falls under the max size of each dimension of a grid so will proceed as a single dimension grid.
+   * 
+   * NOTE: Not all threads in the last block will be necessary, so a conditional check will be necessary to 
+   * return if total thread index becomes > total number of pixels.
+   */
+  const dim3 blockSize(32, 32, 1); // 1024 threads per block
+  const dim3 gridSize(171, 1, 1); // 256 blocks per grid
   rgba_to_greyscale<<<gridSize, blockSize>>>(d_rgbaImage, d_greyImage, numRows, numCols);
   
   cudaDeviceSynchronize(); checkCudaErrors(cudaGetLastError());
