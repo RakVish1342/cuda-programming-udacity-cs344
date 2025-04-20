@@ -55,7 +55,11 @@ void rgba_to_greyscale(const uchar4* const rgbaImage,
 
   const size_t tid = blockIdx.x * (blockDim.x * blockDim.y) + threadIdx.y * (blockDim.x)  + threadIdx.x;
 
-  // TODO: Add return condition for the last block which will only be partially used
+  const size_t tid_max = numRows * numCols - 1;
+  if (tid > tid_max)
+  {
+    return;
+  }
 
   const char R = rgbaImage[tid].x;
   const char G = rgbaImage[tid].y;
