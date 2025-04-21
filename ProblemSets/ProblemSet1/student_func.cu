@@ -61,12 +61,23 @@ void rgba_to_greyscale(const uchar4* const rgbaImage,
     return;
   }
 
+
+  // std::cout << "blockIdx.x: " << blockIdx.x << std::endl;
+  // printf("INDICES: %d, %d) %d, %d | %d \n", blockIdx.x, blockIdx.y, threadIdx.x, threadIdx.y, tid);
+
   const char R = rgbaImage[tid].x;
   const char G = rgbaImage[tid].y;
   const char B = rgbaImage[tid].z;
 
   greyImage[tid] = .299f * (int)R + .587f * (int)G + .114f * (int)B;
+  // greyImage[tid] = (unsigned char)(.299f * (int)R + .587f * (int)G + .114f * (int)B);
+  // greyImage[tid] = (unsigned char)(.299f * (uint8_t)R + .587f * (uint8_t)G + .114f * (uint8_t)B);
  
+  printf("val: %c, %c, %c | %d, %d, %d \n", R, G, B, (int)R, (int)G, (int)B);
+  // printf("val: %c, %c, %c | %d, %d, %d \n", R, G, B, R, G, B);
+  // printf("val: %d) %c, %c, %c | %d, %d, %d \n", tid, R, G, B, (uint8_t)R, (uint8_t)G, (uint8_t)B);
+
+
 }
 
 void your_rgba_to_greyscale(const uchar4 * const h_rgbaImage, uchar4 * const d_rgbaImage,
