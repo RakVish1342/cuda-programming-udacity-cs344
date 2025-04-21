@@ -38,7 +38,6 @@ void rgba_to_greyscale(const uchar4* const rgbaImage,
                        unsigned char* const greyImage,
                        int numRows, int numCols)
 {
-  //TODO
   //Fill in the kernel to convert from color to greyscale
   //the mapping from components of a uchar4 to RGBA is:
   // .x -> R ; .y -> G ; .z -> B ; .w -> A
@@ -51,8 +50,6 @@ void rgba_to_greyscale(const uchar4* const rgbaImage,
   //to an absolute 2D location in the image, then use that to
   //calculate a 1D offset
 
-  // const size_t tid = threadIdx.x + blockDim.x * threadIdx.y;
-
   const size_t tid = blockIdx.x * (blockDim.x * blockDim.y) + threadIdx.y * (blockDim.x)  + threadIdx.x;
 
   const size_t tid_max = numRows * numCols - 1;
@@ -61,22 +58,13 @@ void rgba_to_greyscale(const uchar4* const rgbaImage,
     return;
   }
 
-
-  // std::cout << "blockIdx.x: " << blockIdx.x << std::endl;
-  // printf("INDICES: %d, %d) %d, %d | %d \n", blockIdx.x, blockIdx.y, threadIdx.x, threadIdx.y, tid);
-
   const char R = rgbaImage[tid].x;
   const char G = rgbaImage[tid].y;
   const char B = rgbaImage[tid].z;
 
-  // greyImage[tid] = .299f * (int)R + .587f * (int)G + .114f * (int)B;
-  // greyImage[tid] = (unsigned char)(.299f * (int)R + .587f * (int)G + .114f * (int)B);
   greyImage[tid] = (unsigned char)(.299f * (uint8_t)R + .587f * (uint8_t)G + .114f * (uint8_t)B);
  
-  // printf("val: %c, %c, %c | %d, %d, %d \n", R, G, B, (int)R, (int)G, (int)B);
-  // printf("val: %c, %c, %c | %d, %d, %d \n", R, G, B, R, G, B);
-  printf("val: %d) %c, %c, %c | %d, %d, %d \n", tid, R, G, B, (uint8_t)R, (uint8_t)G, (uint8_t)B);
-
+  // printf("val: %d) %c, %c, %c | %d, %d, %d \n", tid, R, G, B, (uint8_t)R, (uint8_t)G, (uint8_t)B);
 
 }
 
@@ -102,7 +90,6 @@ void your_rgba_to_greyscale(const uchar4 * const h_rgbaImage, uchar4 * const d_r
   // TODO: Is there a way to get this max value at run time than hardcoding it so that all dims of
   // block and grid can be set w.r.t that max value to avoid breaching max limits?
   // const size_t block_max_dim = 1024;
-
 
   /** 
    * Follow up notes about dimensions: 
